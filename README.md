@@ -65,7 +65,7 @@ How to Run
 2. Open the project in IntelliJ IDEA.
 3. Let Maven load all dependencies.
 4. Run the main application file: RvlightsProjectApplication.java
-5. Open your browser and go to: http://localhost:8080
+5. Open your browser and go to: http://localhost:8081
 
 License
 -------
