@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin - Services Management - Radiant_Vista</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <style>
+    :root { 
+      --violet: #6b21a8; 
+      --yellow: #facc15; 
+    }
+    body {
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    .navbar {
+      background: var(--violet);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .btn-primary {
+      background: var(--violet);
+      border: none;
+    }
+    .btn-primary:hover {
+      background: #7c3aed;
+    }
+    .btn-warning {
+      background: var(--yellow);
+      color: #000;
+      font-weight: 600;
+    }
+    .service-card {
+      transition: transform 0.2s;
+    }
+    .service-card:hover {
+      transform: translateY(-5px);
+    }
+    .service-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .total-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--violet);
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="navbar d-flex justify-content-between align-items-center">
+      <h4 class="mb-0"><i class="bi bi-lightning-charge"></i> Admin - Services Management</h4>
+      <div>
+        <a href="/admin_dashboard.html" class="btn btn-light btn-sm me-2"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/index.html" class="btn btn-light btn-sm me-2"><i class="bi bi-house"></i> Home</a>
+        <a href="/admin_login.html" class="btn btn-warning btn-sm" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</a>
+      </div>
+    </div>
+
+    <!-- Tabs for Light and Sound Services -->
+    <ul class="nav nav-tabs mb-3" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#lightServices">
+          <i class="bi bi-lightbulb"></i> Light Services
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#soundServices">
+          <i class="bi bi-music-note-beamed"></i> Sound Services
+        </a>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Light Services Tab -->
+      <div class="tab-pane fade show active" id="lightServices">
+        <div class="row">
+          <div class="col-lg-5">
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Add New Light Service</h5>
+              </div>
+          <div class="card-body">
+            <form id="svc-form">
+              <input type="hidden" id="editServiceId" value="">
+              <div class="mb-3">
+                <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="title" placeholder="Enter service title" required>
+              </div>
+              
+              <div class="mb-3">
+                <label for="imageUrl" class="form-label">Image Link <span class="text-danger">*</span></label>
+                <input type="url" class="form-control" id="imageUrl" placeholder="https://example.com/image.jpg" required>
+                <small class="text-muted">Enter the URL of the service image</small>
+              </div>
+              
+              <div class="mb-3">
+                <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="description" rows="4" placeholder="Enter service description" required></textarea>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="pricePerItem" class="form-label">Price Per Square Feet (LKR) <span class="text-danger">*</span></label>
+                  <input type="number" step="0.01" class="form-control" id="pricePerItem" placeholder="0.00" required>
+                  <small class="text-muted"><i class="bi bi-info-circle"></i> Price is per square feet</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="defaultHours" class="form-label">Default Hours <span class="text-danger">*</span></label>
+                  <input type="number" step="0.5" class="form-control" id="defaultHours" placeholder="1.0" required>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Total Price (Auto-calculated)</label>
+                <div class="total-price" id="totalPrice">0.00 LKR</div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="additionalServices" class="form-label">Additional Services</label>
+                <textarea class="form-control" id="additionalServices" rows="3" placeholder="Enter additional services (Note: Additional payment will be asked)"></textarea>
+                <small class="text-muted"><i class="bi bi-info-circle"></i> Additional payment will be asked for these services</small>
+              </div>
+              
+              <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+                <i class="bi bi-check-circle"></i> <span id="submitBtnText">Add Service</span>
+              </button>
+              <button type="button" class="btn btn-secondary w-100 mt-2" id="cancelEditBtn" onclick="cancelEdit()" style="display: none;">
+                <i class="bi bi-x-circle"></i> Cancel Edit
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="card">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="bi bi-list-ul"></i> Existing Light Services</h5>
+          </div>
+          <div class="card-body">
+            <div id="svc-list" class="row">
+              <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+      </div>  <!-- Close lightServices tab-pane -->
+
+      <!-- Sound Services Tab -->
+      <div class="tab-pane fade" id="soundServices">
+        <div class="row">
+          <div class="col-lg-5">
+            <div class="card">
+              <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Add New Sound Service</h5>
+              </div>
+              <div class="card-body">
+                <form id="sound-svc-form">
+                  <input type="hidden" id="editSoundServiceId" value="">
+                  <div class="mb-3">
+                    <label for="sound-title" class="form-label">Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="sound-title" placeholder="Enter service title" required>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="sound-imageUrl" class="form-label">Image Link <span class="text-danger">*</span></label>
+                    <input type="url" class="form-control" id="sound-imageUrl" placeholder="https://example.com/image.jpg" required>
+                    <small class="text-muted">Enter the URL of the service image</small>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="sound-description" class="form-label">Description <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="sound-description" rows="4" placeholder="Enter service description" required></textarea>
+                  </div>
+                  
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="sound-pricePerItem" class="form-label">Price Per Item (LKR) <span class="text-danger">*</span></label>
+                      <input type="number" step="0.01" class="form-control" id="sound-pricePerItem" placeholder="0.00" required>
+                      <small class="text-muted"><i class="bi bi-info-circle"></i> Price is per item</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="sound-defaultHours" class="form-label">Default Hours <span class="text-danger">*</span></label>
+                      <input type="number" step="0.5" class="form-control" id="sound-defaultHours" placeholder="1.0" required>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">Total Price (Auto-calculated)</label>
+                    <div class="total-price" id="sound-totalPrice">0.00 LKR</div>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="sound-additionalServices" class="form-label">Additional Services</label>
+                    <textarea class="form-control" id="sound-additionalServices" rows="3" placeholder="Enter additional services (Note: Additional payment will be asked)"></textarea>
+                    <small class="text-muted"><i class="bi bi-info-circle"></i> Additional payment will be asked for these services</small>
+                  </div>
+                  
+                  <button type="submit" class="btn btn-primary w-100" id="soundSubmitBtn">
+                    <i class="bi bi-plus-circle"></i> <span id="soundSubmitBtnText">Add Service</span>
+                  </button>
+                  <button type="button" class="btn btn-secondary w-100 mt-2" id="cancelSoundEditBtn" onclick="cancelSoundEdit()" style="display: none;">
+                    <i class="bi bi-x-circle"></i> Cancel Edit
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-7">
+            <div class="card">
+              <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Existing Sound Services</h5>
+              </div>
+              <div class="card-body">
+                <div id="sound-svc-list" class="row">
+                  <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const LIGHT_API = '/api/admin/services';
+    const SOUND_API = '/api/admin/sound-services';
+    
+    // Check admin login
+    if(sessionStorage.getItem('adminLoggedIn') !== 'true') {
+      window.location.href = '/admin_login.html';
+    }
+
+    function calculateTotal() {
+      const price = parseFloat(document.getElementById('pricePerItem').value) || 0;
+      const hours = parseFloat(document.getElementById('defaultHours').value) || 0;
+      const total = (price * hours).toFixed(2);
+      document.getElementById('totalPrice').textContent = total + ' LKR';
+    }
+
+    function calculateSoundTotal() {
+      const price = parseFloat(document.getElementById('sound-pricePerItem').value) || 0;
+      const hours = parseFloat(document.getElementById('sound-defaultHours').value) || 0;
+      const total = (price * hours).toFixed(2);
+      document.getElementById('sound-totalPrice').textContent = total + ' LKR';
+    }
+
+    document.getElementById('pricePerItem').addEventListener('input', calculateTotal);
+    document.getElementById('defaultHours').addEventListener('input', calculateTotal);
+    document.getElementById('sound-pricePerItem').addEventListener('input', calculateSoundTotal);
+    document.getElementById('sound-defaultHours').addEventListener('input', calculateSoundTotal);
+
+    async function fetchServices() {
+      try {
+        const r = await fetch(LIGHT_API);
+        const services = await r.json();
+        const container = document.getElementById('svc-list');
+        
+        if(!services || services.length === 0) {
+          container.innerHTML = '<div class="col-12"><div class="alert alert-info">No light services added yet. Add your first service using the form on the left.</div></div>';
+          return;
+        }
+        
+        container.innerHTML = services.map(s => `
+          <div class="col-md-6 mb-3">
+            <div class="card service-card h-100">
+              ${s.imageUrl ? `<img src="${s.imageUrl}" class="service-image" alt="${s.title}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">` : ''}
+              <div class="card-body">
+                <h6 class="card-title">${s.title}</h6>
+                <p class="card-text small">${s.description || 'No description'}</p>
+                <div class="mb-2">
+                  <small class="text-muted">Price/sq ft: <strong>${s.pricePerItem} LKR</strong></small><br>
+                  <small class="text-muted">Default Hours: <strong>${s.defaultHours}</strong></small><br>
+                  <small class="text-success">Total: <strong>${s.totalPrice} LKR</strong></small>
+                </div>
+                ${s.additionalServices ? `<div class="alert alert-warning small mb-0"><strong>Additional Services:</strong> ${s.additionalServices}</div>` : ''}
+                <div class="mt-2">
+                  <button class="btn btn-sm btn-primary me-2 edit-service-btn" data-service-id="${s.id}" data-service-type="light">
+                    <i class="bi bi-pencil"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteService(${s.id})">
+                    <i class="bi bi-trash"></i> Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch(error) {
+        console.error('Error fetching services:', error);
+        document.getElementById('svc-list').innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading services</div></div>';
+      }
+    }
+
+    async function fetchSoundServices() {
+      try {
+        const r = await fetch(SOUND_API);
+        const services = await r.json();
+        const container = document.getElementById('sound-svc-list');
+        
+        if(!services || services.length === 0) {
+          container.innerHTML = '<div class="col-12"><div class="alert alert-info">No sound services added yet. Add your first service using the form on the left.</div></div>';
+          return;
+        }
+        
+        container.innerHTML = services.map(s => `
+          <div class="col-md-6 mb-3">
+            <div class="card service-card h-100">
+              ${s.imageUrl ? `<img src="${s.imageUrl}" class="service-image" alt="${s.title}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">` : ''}
+              <div class="card-body">
+                <h6 class="card-title">${s.title}</h6>
+                <p class="card-text small">${s.description || 'No description'}</p>
+                <div class="mb-2">
+                  <small class="text-muted">Price/Item: <strong>${s.pricePerItem} LKR</strong></small><br>
+                  <small class="text-muted">Default Hours: <strong>${s.defaultHours}</strong></small><br>
+                  <small class="text-success">Total: <strong>${s.totalPrice} LKR</strong></small>
+                </div>
+                ${s.additionalServices ? `<div class="alert alert-warning small mb-0"><strong>Additional Services:</strong> ${s.additionalServices}</div>` : ''}
+                <div class="mt-2">
+                  <button class="btn btn-sm btn-primary me-2 edit-service-btn" data-service-id="${s.id}" data-service-type="sound">
+                    <i class="bi bi-pencil"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteSoundService(${s.id})">
+                    <i class="bi bi-trash"></i> Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch(error) {
+        console.error('Error fetching sound services:', error);
+        document.getElementById('sound-svc-list').innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading sound services</div></div>';
+      }
+    }
+
+    function editService(id, title, imageUrl, description, pricePerItem, defaultHours, additionalServices) {
+      // Switch to Light Services tab
+      const lightTab = document.querySelector('a[href="#lightServices"]');
+      if(lightTab) {
+        lightTab.click();
+      }
+      
+      document.getElementById('editServiceId').value = id;
+      document.getElementById('title').value = title;
+      document.getElementById('imageUrl').value = imageUrl || '';
+      document.getElementById('description').value = description || '';
+      document.getElementById('pricePerItem').value = pricePerItem;
+      document.getElementById('defaultHours').value = defaultHours;
+      document.getElementById('additionalServices').value = additionalServices || '';
+      document.getElementById('submitBtnText').textContent = 'Update Service';
+      document.getElementById('cancelEditBtn').style.display = 'block';
+      document.querySelector('#lightServices .card-header h5').innerHTML = '<i class="bi bi-pencil"></i> Edit Light Service';
+      calculateTotal();
+      // Scroll to form
+      setTimeout(() => {
+        document.querySelector('#svc-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    function cancelEdit() {
+      document.getElementById('editServiceId').value = '';
+      document.getElementById('svc-form').reset();
+      document.getElementById('totalPrice').textContent = '0.00 LKR';
+      document.getElementById('submitBtnText').textContent = 'Add Service';
+      document.getElementById('cancelEditBtn').style.display = 'none';
+      document.querySelector('#lightServices .card-header h5').innerHTML = '<i class="bi bi-plus-circle"></i> Add New Light Service';
+    }
+
+    document.getElementById('svc-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const editId = document.getElementById('editServiceId').value;
+      const payload = {
+        title: document.getElementById('title').value,
+        imageUrl: document.getElementById('imageUrl').value,
+        description: document.getElementById('description').value,
+        pricePerItem: parseFloat(document.getElementById('pricePerItem').value),
+        defaultHours: parseFloat(document.getElementById('defaultHours').value),
+        additionalServices: document.getElementById('additionalServices').value
+      };
+      
+      try {
+        const url = editId ? `${LIGHT_API}/${editId}` : LIGHT_API;
+        const method = editId ? 'PUT' : 'POST';
+        
+        const res = await fetch(url, {
+          method: method,
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+        
+        if(res.ok) {
+          alert(editId ? 'Light service updated successfully!' : 'Light service added successfully!');
+          cancelEdit();
+          fetchServices();
+        } else {
+          const error = await res.text();
+          alert('Error: ' + error);
+        }
+      } catch(error) {
+        alert('Error: ' + error.message);
+      }
+    });
+
+    function editSoundService(id, title, imageUrl, description, pricePerItem, defaultHours, additionalServices) {
+      // Switch to Sound Services tab
+      const soundTab = document.querySelector('a[href="#soundServices"]');
+      if(soundTab) {
+        soundTab.click();
+      }
+      
+      document.getElementById('editSoundServiceId').value = id;
+      document.getElementById('sound-title').value = title;
+      document.getElementById('sound-imageUrl').value = imageUrl || '';
+      document.getElementById('sound-description').value = description || '';
+      document.getElementById('sound-pricePerItem').value = pricePerItem;
+      document.getElementById('sound-defaultHours').value = defaultHours;
+      document.getElementById('sound-additionalServices').value = additionalServices || '';
+      document.getElementById('soundSubmitBtnText').textContent = 'Update Service';
+      document.getElementById('cancelSoundEditBtn').style.display = 'block';
+      document.querySelector('#soundServices .card-header h5').innerHTML = '<i class="bi bi-pencil"></i> Edit Sound Service';
+      calculateSoundTotal();
+      // Scroll to form
+      setTimeout(() => {
+        document.querySelector('#sound-svc-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    function cancelSoundEdit() {
+      document.getElementById('editSoundServiceId').value = '';
+      document.getElementById('sound-svc-form').reset();
+      document.getElementById('sound-totalPrice').textContent = '0.00 LKR';
+      document.getElementById('soundSubmitBtnText').textContent = 'Add Service';
+      document.getElementById('cancelSoundEditBtn').style.display = 'none';
+      document.querySelector('#soundServices .card-header h5').innerHTML = '<i class="bi bi-plus-circle"></i> Add New Sound Service';
+    }
+
+    document.getElementById('sound-svc-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const editId = document.getElementById('editSoundServiceId').value;
+      const payload = {
+        title: document.getElementById('sound-title').value,
+        imageUrl: document.getElementById('sound-imageUrl').value,
+        description: document.getElementById('sound-description').value,
+        pricePerItem: parseFloat(document.getElementById('sound-pricePerItem').value),
+        defaultHours: parseFloat(document.getElementById('sound-defaultHours').value),
+        additionalServices: document.getElementById('sound-additionalServices').value
+      };
+      
+      try {
+        const url = editId ? `${SOUND_API}/${editId}` : SOUND_API;
+        const method = editId ? 'PUT' : 'POST';
+        
+        const res = await fetch(url, {
+          method: method,
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+        
+        if(res.ok) {
+          alert(editId ? 'Sound service updated successfully!' : 'Sound service added successfully!');
+          cancelSoundEdit();
+          fetchSoundServices();
+        } else {
+          const error = await res.text();
+          alert('Error: ' + error);
+        }
+      } catch(error) {
+        alert('Error: ' + error.message);
+      }
+    });
+
+    async function deleteService(id) {
+      if(!confirm('Are you sure you want to delete this light service?')) return;
+      
+      try {
+        const res = await fetch(`${LIGHT_API}/${id}`, { method: 'DELETE' });
+        if(res.ok) {
+          alert('Light service deleted successfully!');
+          fetchServices();
+        } else {
+          alert('Error deleting service');
+        }
+      } catch(error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    async function deleteSoundService(id) {
+      if(!confirm('Are you sure you want to delete this sound service?')) return;
+      
+      try {
+        const res = await fetch(`${SOUND_API}/${id}`, { method: 'DELETE' });
+        if(res.ok) {
+          alert('Sound service deleted successfully!');
+          fetchSoundServices();
+        } else {
+          alert('Error deleting sound service');
+        }
+      } catch(error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    // Event delegation for edit buttons
+    document.addEventListener('click', async function(e) {
+      if(e.target.closest('.edit-service-btn')) {
+        const btn = e.target.closest('.edit-service-btn');
+        const serviceId = parseInt(btn.getAttribute('data-service-id'));
+        const serviceType = btn.getAttribute('data-service-type');
+        
+        try {
+          if(serviceType === 'light') {
+            const res = await fetch(`${LIGHT_API}/${serviceId}`);
+            if(res.ok) {
+              const service = await res.json();
+              editService(service.id, service.title, service.imageUrl, service.description, service.pricePerItem, service.defaultHours, service.additionalServices || '');
+            } else {
+              alert('Service not found');
+            }
+          } else if(serviceType === 'sound') {
+            const res = await fetch(`${SOUND_API}/${serviceId}`);
+            if(res.ok) {
+              const service = await res.json();
+              editSoundService(service.id, service.title, service.imageUrl, service.description, service.pricePerItem, service.defaultHours, service.additionalServices || '');
+            } else {
+              alert('Service not found');
+            }
+          }
+        } catch(error) {
+          console.error('Error loading service for edit:', error);
+          alert('Error loading service details');
+        }
+      }
+    });
+
+    function logout() {
+      sessionStorage.removeItem('adminLoggedIn');
+    }
+
+    // Initialize
+    fetchServices();
+    fetchSoundServices();
+  </script>
+</body>
+</html>

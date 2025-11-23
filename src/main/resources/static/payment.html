@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payment & Booking - Radiant_Vista</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <style>
+    :root { 
+      --violet: #6b21a8; 
+      --yellow: #facc15; 
+    }
+    body {
+      background: linear-gradient(180deg, var(--violet) 10%, #fff 50%);
+      min-height: 100vh;
+      padding: 20px 0;
+    }
+    .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .btn-primary {
+      background: var(--violet);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: #7c3aed;
+    }
+    .btn-warning {
+      background: var(--yellow);
+      color: #000;
+      font-weight: 700;
+      border-radius: 8px;
+    }
+    .amount-display {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--violet);
+      text-align: center;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    .bank-details {
+      background: #e7f3ff;
+      border-left: 4px solid #0066cc;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 15px 0;
+    }
+    .payment-tabs {
+      border-bottom: 2px solid #dee2e6;
+      margin-bottom: 20px;
+    }
+    .payment-tabs .nav-link {
+      border: none;
+      color: #666;
+      font-weight: 600;
+    }
+    .payment-tabs .nav-link.active {
+      color: var(--violet);
+      border-bottom: 3px solid var(--violet);
+    }
+    .transaction-item {
+      border-left: 4px solid var(--violet);
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #f8f9fa;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--violet); margin-bottom: 20px; border-radius: 10px;">
+    <div class="container">
+      <a class="navbar-brand" href="/index.html"><i class="bi bi-lightning-charge-fill"></i> Radiant_Vista</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/services.html">Light Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="/sound-services.html">Sound Services</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/payment.html">Payment</a></li>
+          <li class="nav-item"><a class="nav-link" href="/contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin_login.html">Admin</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="text-center mb-4">
+      <h2 class="text-white"><i class="bi bi-credit-card-2-front"></i> Payment & Booking</h2>
+      <p class="text-white">Complete your booking by making a payment</p>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8">
+        <!-- Service Selection -->
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-list-check"></i> Select Service</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="serviceType" class="form-label">Service Type <span class="text-danger">*</span></label>
+              <select id="serviceType" class="form-select" required>
+                <option value="">-- Select service type --</option>
+                <option value="light">Light Service</option>
+                <option value="sound">Sound Service</option>
+              </select>
+            </div>
+            
+            <div class="mb-3">
+              <label for="serviceSelect" class="form-label">Service <span class="text-danger">*</span></label>
+              <select id="serviceSelect" class="form-select" required disabled>
+                <option value="">-- Select service type first --</option>
+              </select>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="quantity" class="form-label">Quantity <span class="text-danger">*</span></label>
+                <input type="number" id="quantity" class="form-control" min="1" value="1" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="hours" class="form-label">Hours <span class="text-danger">*</span></label>
+                <input type="number" id="hours" class="form-control" min="0.5" step="0.5" value="1" required>
+              </div>
+            </div>
+            
+            <!-- Payment Summary -->
+            <div class="card mt-3" style="background: #f8f9fa; border: 2px solid var(--violet);">
+              <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="bi bi-calculator"></i> Payment Summary</h6>
+              </div>
+              <div class="card-body">
+                <div id="paymentSummary" style="display: none;">
+                  <div class="row mb-2">
+                    <div class="col-6"><strong>Service:</strong></div>
+                    <div class="col-6 text-end" id="summaryService">-</div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-6"><strong>Price per Unit:</strong></div>
+                    <div class="col-6 text-end" id="summaryPricePerUnit">0.00 LKR</div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-6"><strong>Quantity:</strong></div>
+                    <div class="col-6 text-end" id="summaryQuantity">1</div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-6"><strong>Hours:</strong></div>
+                    <div class="col-6 text-end" id="summaryHours">1.0</div>
+                  </div>
+                  <hr>
+                  <div class="row mb-2">
+                    <div class="col-6"><strong>Subtotal:</strong></div>
+                    <div class="col-6 text-end" id="summarySubtotal">0.00 LKR</div>
+                  </div>
+                  <div class="amount-display mt-3">
+                    <small class="text-muted d-block">Total Amount</small>
+                    <span id="amountDisplay" style="font-size: 32px; font-weight: 700; color: var(--violet);">0.00</span> LKR
+                  </div>
+                </div>
+                <div id="noServiceSelected" class="text-center text-muted py-3">
+                  <i class="bi bi-info-circle"></i> Select a service to see payment summary
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div class="card">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="bi bi-wallet2"></i> Payment Method</h5>
+          </div>
+          <div class="card-body">
+            <ul class="nav nav-tabs payment-tabs" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#bankTransfer">Bank Transfer</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#cardPayment">Card Payment</a>
+              </li>
+            </ul>
+
+            <div class="tab-content">
+              <!-- Bank Transfer Tab -->
+              <div class="tab-pane fade show active" id="bankTransfer">
+                <div class="bank-details">
+                  <h6><i class="bi bi-bank"></i> Bank Account Details</h6>
+                  <p class="mb-1"><strong>Bank Name:</strong> Commercial Bank of Ceylon</p>
+                  <p class="mb-1"><strong>Account Name:</strong> RV Lights & Sound</p>
+                  <p class="mb-1"><strong>Account Number:</strong> 1234567890</p>
+                  <p class="mb-0"><strong>Branch:</strong> Colombo 05</p>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="paymentSlip" class="form-label">Upload Payment Slip Screenshot <span class="text-danger">*</span></label>
+                  <input type="file" id="paymentSlip" class="form-control" accept="image/*" style="max-width: 100%;">
+                  <small class="text-muted">Upload a screenshot of your bank transfer receipt (any image format accepted)</small>
+                </div>
+                
+                <div id="slipPreview" class="mb-3" style="display: none;">
+                  <img id="slipImage" src="" alt="Payment slip" style="max-width: 100%; max-height: 200px; border-radius: 5px;">
+                </div>
+              </div>
+
+              <!-- Card Payment Tab -->
+              <div class="tab-pane fade" id="cardPayment">
+                <div class="mb-3">
+                  <label for="cardNumber" class="form-label">Card Number <span class="text-danger">*</span></label>
+                  <input type="text" id="cardNumber" class="form-control" maxlength="19" placeholder="1234 5678 9012 3456" required>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <label for="expMonth" class="form-label">Expiry MM <span class="text-danger">*</span></label>
+                    <input type="number" id="expMonth" class="form-control" min="1" max="12" placeholder="MM" required>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="expYear" class="form-label">Expiry YY <span class="text-danger">*</span></label>
+                    <input type="number" id="expYear" class="form-control" min="25" max="99" placeholder="YY" required>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="cvv" class="form-label">CVV <span class="text-danger">*</span></label>
+                    <input type="password" id="cvv" class="form-control" maxlength="4" placeholder="123" required>
+                  </div>
+                </div>
+                
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="saveCard">
+                  <label class="form-check-label" for="saveCard">
+                    Save this card for future payments (Optional)
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="payBtn" class="btn btn-warning btn-lg w-100">
+          <i class="bi bi-check-circle"></i> Pay & Book
+        </button>
+      </div>
+
+      <div class="col-lg-4">
+        <!-- Recent Transactions -->
+        <div class="card">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Transactions</h5>
+          </div>
+          <div class="card-body">
+            <div id="transactions-list">
+              <div class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body text-center">
+            <a href="/services.html" class="btn btn-outline-primary w-100 mb-2">
+              <i class="bi bi-lightbulb"></i> Light Services
+            </a>
+            <a href="/sound-services.html" class="btn btn-outline-info w-100 mb-2">
+              <i class="bi bi-music-note-beamed"></i> Sound Services
+            </a>
+            <a href="/contact.html" class="btn btn-outline-success w-100">
+              <i class="bi bi-envelope"></i> Contact Us
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const LIGHT_SERVICES_API = '/api/customer/services';
+    const SOUND_SERVICES_API = '/api/customer/sound-services';
+    const TRANSACTIONS_API = '/api/customer/payments/transactions';
+    const CHARGE_API = '/api/customer/payments/charge';
+    const PAYMENT_METHODS_API = '/api/customer/payments';
+
+    let selectedService = null;
+    let selectedServiceType = null;
+    let savedPaymentMethods = [];
+
+    // Get service ID and type from URL if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const serviceIdFromUrl = urlParams.get('serviceId');
+    const serviceTypeFromUrl = urlParams.get('serviceType');
+
+    function formatCardNumber(value) {
+      const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+      const matches = v.match(/\d{4,16}/g);
+      const match = matches && matches[0] || '';
+      const parts = [];
+      for (let i = 0, len = match.length; i < len; i += 4) {
+        parts.push(match.substring(i, i + 4));
+      }
+      if (parts.length) {
+        return parts.join(' ');
+      } else {
+        return v;
+      }
+    }
+
+    document.getElementById('cardNumber').addEventListener('input', function(e) {
+      e.target.value = formatCardNumber(e.target.value);
+    });
+
+    document.getElementById('serviceType').addEventListener('change', async function() {
+      const serviceType = this.value;
+      selectedServiceType = serviceType;
+      const select = document.getElementById('serviceSelect');
+      
+      if(!serviceType) {
+        select.innerHTML = '<option value="">-- Select service type first --</option>';
+        select.disabled = true;
+        return;
+      }
+      
+      select.disabled = false;
+      select.innerHTML = '<option value="">-- Loading services... --</option>';
+      
+      try {
+        const apiUrl = serviceType === 'light' ? LIGHT_SERVICES_API : SOUND_SERVICES_API;
+        const res = await fetch(apiUrl);
+        const services = await res.json();
+        
+        select.innerHTML = '<option value="">-- Select a service --</option>';
+        services.forEach(s => {
+          const option = document.createElement('option');
+          const priceLabel = serviceType === 'light' ? 'LKR/sq ft' : 'LKR/item';
+          option.value = s.id;
+          option.textContent = `${s.title} - ${s.pricePerItem} ${priceLabel} (Default: ${s.defaultHours} hrs)`;
+          option.dataset.price = s.pricePerItem;
+          option.dataset.defaultHours = s.defaultHours;
+          select.appendChild(option);
+          
+          if(serviceIdFromUrl && serviceTypeFromUrl === serviceType && s.id == serviceIdFromUrl) {
+            option.selected = true;
+            selectedService = s;
+            document.getElementById('hours').value = s.defaultHours;
+            computeAmount();
+          }
+        });
+      } catch(error) {
+        console.error('Error fetching services:', error);
+        select.innerHTML = '<option value="">-- Error loading services --</option>';
+      }
+    });
+
+    // Initialize service type from URL if present
+    if(serviceTypeFromUrl) {
+      document.getElementById('serviceType').value = serviceTypeFromUrl;
+      document.getElementById('serviceType').dispatchEvent(new Event('change'));
+    }
+
+    function computeAmount() {
+      const serviceSelect = document.getElementById('serviceSelect');
+      const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+      
+      if(!selectedOption || !selectedOption.value) {
+        document.getElementById('amountDisplay').textContent = '0.00';
+        document.getElementById('paymentSummary').style.display = 'none';
+        document.getElementById('noServiceSelected').style.display = 'block';
+        selectedService = null;
+        return;
+      }
+      
+      selectedService = {
+        id: selectedOption.value,
+        pricePerItem: parseFloat(selectedOption.dataset.price),
+        defaultHours: parseFloat(selectedOption.dataset.defaultHours),
+        serviceType: selectedServiceType,
+        title: selectedOption.textContent.split(' - ')[0]
+      };
+      
+      const price = selectedService.pricePerItem;
+      const qty = parseInt(document.getElementById('quantity').value) || 1;
+      const hours = parseFloat(document.getElementById('hours').value) || selectedService.defaultHours;
+      const subtotal = price * qty * hours;
+      const total = subtotal.toFixed(2);
+      
+      // Update summary display
+      document.getElementById('summaryService').textContent = selectedService.title;
+      document.getElementById('summaryPricePerUnit').textContent = price.toFixed(2) + ' LKR' + (selectedServiceType === 'light' ? '/sq ft' : '/item');
+      document.getElementById('summaryQuantity').textContent = qty;
+      document.getElementById('summaryHours').textContent = hours.toFixed(1) + ' hrs';
+      document.getElementById('summarySubtotal').textContent = subtotal.toFixed(2) + ' LKR';
+      document.getElementById('amountDisplay').textContent = total;
+      
+      // Show summary
+      document.getElementById('paymentSummary').style.display = 'block';
+      document.getElementById('noServiceSelected').style.display = 'none';
+    }
+
+    document.getElementById('serviceSelect').addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      if(selectedOption && selectedOption.value) {
+        document.getElementById('hours').value = selectedOption.dataset.defaultHours;
+      }
+      computeAmount();
+    });
+
+    document.getElementById('quantity').addEventListener('input', computeAmount);
+    document.getElementById('hours').addEventListener('input', computeAmount);
+
+    // Payment slip preview
+    document.getElementById('paymentSlip').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('slipImage').src = e.target.result;
+          document.getElementById('slipPreview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    async function loadTransactions() {
+      try {
+        const res = await fetch(TRANSACTIONS_API, {
+          headers: {'X-User-Id': '1'}
+        });
+        const transactions = await res.json();
+        console.log('Loaded transactions:', transactions);
+        const container = document.getElementById('transactions-list');
+        
+        if(!transactions || transactions.length === 0) {
+          container.innerHTML = '<div class="text-muted text-center py-3">No transactions yet</div>';
+          return;
+        }
+        
+        // Log payment types for debugging
+        const paymentTypes = transactions.map(tx => tx.paymentType);
+        console.log('Payment types in transactions:', paymentTypes);
+        
+        // Sort transactions by date (newest first) and show all
+        const sortedTransactions = transactions.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+        
+        container.innerHTML = sortedTransactions.map(tx => {
+          let date = 'N/A';
+          try {
+            if(tx.createdAt) {
+              date = new Date(tx.createdAt).toLocaleDateString();
+            }
+          } catch(e) {
+            console.error('Error parsing date:', e);
+          }
+          
+          const paymentType = tx.paymentType === 'bank_transfer' ? 'Bank Slip' : (tx.paymentType === 'card' ? 'Card' : 'Unknown');
+          const paymentTypeBadge = tx.paymentType === 'bank_transfer' ? 'bg-info' : 'bg-primary';
+          const serviceTypeLabel = tx.serviceType === 'light' ? 'Light' : (tx.serviceType === 'sound' ? 'Sound' : '');
+          
+          return `
+            <div class="transaction-item">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <strong>${tx.amount || 0} LKR</strong><br>
+                  <small class="text-muted">${serviceTypeLabel}${serviceTypeLabel ? ' - ' : ''}Qty: ${tx.quantity || 1} × ${tx.hours || 0} hrs</small><br>
+                  <span class="badge ${paymentTypeBadge} mt-1">${paymentType}</span>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-success">${tx.status || 'pending'}</span><br>
+                  <small class="text-muted">${date}</small>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch(error) {
+        console.error('Error loading transactions:', error);
+        document.getElementById('transactions-list').innerHTML = '<div class="text-danger">Error loading transactions</div>';
+      }
+    }
+
+    document.getElementById('payBtn').addEventListener('click', async function() {
+      if(!selectedService) {
+        alert('Please select a service');
+        return;
+      }
+      
+      const qty = parseInt(document.getElementById('quantity').value);
+      const hours = parseFloat(document.getElementById('hours').value);
+      
+      if(!qty || !hours) {
+        alert('Please enter valid quantity and hours');
+        return;
+      }
+      
+      // Detect active tab more reliably
+      const bankTransferTab = document.querySelector('#bankTransfer');
+      const cardPaymentTab = document.querySelector('#cardPayment');
+      const isBankTransfer = (bankTransferTab && bankTransferTab.classList.contains('active')) || 
+                            (bankTransferTab && bankTransferTab.classList.contains('show'));
+      const isCardPayment = (cardPaymentTab && cardPaymentTab.classList.contains('active')) || 
+                           (cardPaymentTab && cardPaymentTab.classList.contains('show'));
+      
+      // Fallback: check nav-link active state
+      const activeNavLink = document.querySelector('.payment-tabs .nav-link.active');
+      const activeTabHref = activeNavLink ? activeNavLink.getAttribute('href') : null;
+      
+      console.log('Tab Detection:', { isBankTransfer, isCardPayment, activeTabHref, bankTransferTab, cardPaymentTab });
+      
+      let paymentType, paymentMethodId = null, paymentSlipUrl = null, bankDetails = null;
+      
+      if(isBankTransfer || activeTabHref === '#bankTransfer') {
+        paymentType = 'bank_transfer';
+        console.log('Processing bank transfer payment');
+        const slipFile = document.getElementById('paymentSlip').files[0];
+        if(!slipFile) {
+          alert('Please upload payment slip screenshot');
+          return;
+        }
+        // Convert file to base64 for storage
+        const reader = new FileReader();
+        paymentSlipUrl = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(slipFile);
+        });
+        bankDetails = 'Commercial Bank of Ceylon - Account: 1234567890';
+      } else if(isCardPayment || activeTabHref === '#cardPayment') {
+        paymentType = 'card';
+        console.log('Processing card payment');
+        const cardNumber = document.getElementById('cardNumber').value.replace(/\s+/g, '');
+        const expMonth = document.getElementById('expMonth').value;
+        const expYear = document.getElementById('expYear').value;
+        const cvv = document.getElementById('cvv').value;
+        const saveCard = document.getElementById('saveCard').checked;
+        
+        if(!cardNumber || !expMonth || !expYear || !cvv) {
+          alert('Please fill all card details');
+          return;
+        }
+        
+        // Save card if requested
+        if(saveCard) {
+          try {
+            const pmRes = await fetch(PAYMENT_METHODS_API, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json', 'X-User-Id': '1'},
+              body: JSON.stringify({
+                provider: 'card',
+                token: 'demo-token-' + cardNumber.slice(-4),
+                cardBrand: 'Visa',
+                last4: cardNumber.slice(-4),
+                expiryMonth: parseInt(expMonth),
+                expiryYear: 2000 + parseInt(expYear)
+              })
+            });
+            if(pmRes.ok) {
+              const pm = await pmRes.json();
+              paymentMethodId = pm.id;
+            }
+          } catch(e) {
+            console.error('Error saving card:', e);
+          }
+        }
+      } else {
+        // Default to card if tab detection fails
+        console.warn('Tab detection failed, defaulting to card payment');
+        paymentType = 'card';
+        const cardNumber = document.getElementById('cardNumber').value.replace(/\s+/g, '');
+        const expMonth = document.getElementById('expMonth').value;
+        const expYear = document.getElementById('expYear').value;
+        const cvv = document.getElementById('cvv').value;
+        
+        if(!cardNumber || !expMonth || !expYear || !cvv) {
+          alert('Please fill all card details or select the correct payment method tab');
+          return;
+        }
+      }
+      
+      if(!paymentType) {
+        alert('Unable to determine payment method. Please select a payment tab.');
+        return;
+      }
+      
+      console.log('Submitting payment:', { paymentType, paymentSlipUrl, bankDetails, paymentMethodId });
+      
+      try {
+        const requestBody = {
+          serviceId: parseInt(selectedService.id),
+          serviceType: selectedService.serviceType,
+          quantity: qty,
+          hours: hours,
+          paymentType: paymentType,
+          paymentMethodId: paymentMethodId,
+          paymentSlipUrl: paymentSlipUrl,
+          bankDetails: bankDetails
+        };
+        console.log('Request body:', requestBody);
+        
+        const res = await fetch(CHARGE_API, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'X-User-Id': '1'},
+          body: JSON.stringify(requestBody)
+        });
+        
+        if(res.ok) {
+          const tx = await res.json();
+          console.log('Payment successful:', tx);
+          alert('Payment successful! Booking confirmed. Amount: ' + tx.amount + ' LKR. Payment Type: ' + (tx.paymentType === 'bank_transfer' ? 'Bank Transfer' : 'Card'));
+          document.getElementById('serviceType').value = '';
+          document.getElementById('serviceSelect').value = '';
+          document.getElementById('serviceSelect').disabled = true;
+          document.getElementById('quantity').value = '1';
+          document.getElementById('hours').value = '1';
+          selectedService = null;
+          selectedServiceType = null;
+          document.getElementById('paymentSlip').value = '';
+          document.getElementById('slipPreview').style.display = 'none';
+          document.getElementById('cardNumber').value = '';
+          document.getElementById('expMonth').value = '';
+          document.getElementById('expYear').value = '';
+          document.getElementById('cvv').value = '';
+          document.getElementById('saveCard').checked = false;
+          computeAmount();
+          loadTransactions();
+        } else {
+          const error = await res.text();
+          alert('Payment failed: ' + error);
+        }
+      } catch(error) {
+        alert('Error: ' + error.message);
+      }
+    });
+
+    // Initialize
+    loadTransactions();
+  </script>
+</body>
+</html>

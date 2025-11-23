@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard - Radiant_Vista</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <style>
+    :root { 
+      --violet: #6b21a8; 
+      --yellow: #facc15; 
+    }
+    body {
+      background: #f8f9fa;
+      padding: 20px 0;
+    }
+    .navbar {
+      background: var(--violet);
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+    }
+    .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .card-header {
+      background: var(--violet);
+      color: white;
+      border-radius: 15px 15px 0 0 !important;
+      padding: 15px 20px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, var(--violet) 0%, #9333ea 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .stat-card .number {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .stat-card .label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .btn-primary {
+      background: var(--violet);
+      border: none;
+    }
+    .btn-primary:hover {
+      background: #7c3aed;
+    }
+    .btn-warning {
+      background: var(--yellow);
+      color: #000;
+      font-weight: 600;
+    }
+    .transaction-item, .message-item {
+      border-left: 4px solid var(--violet);
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #f8f9fa;
+      border-radius: 5px;
+      transition: transform 0.2s;
+    }
+    .transaction-item:hover, .message-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+    .nav-tabs {
+      border-bottom: 2px solid #dee2e6;
+    }
+    .nav-tabs .nav-link {
+      border: none;
+      color: #666;
+      font-weight: 600;
+    }
+    .nav-tabs .nav-link.active {
+      color: var(--violet);
+      border-bottom: 3px solid var(--violet);
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="navbar d-flex justify-content-between align-items-center">
+      <h3 class="mb-0"><i class="bi bi-speedometer2"></i> Admin Dashboard</h3>
+      <div>
+        <a href="/admin_services.html" class="btn btn-light btn-sm me-2">
+          <i class="bi bi-gear"></i> Manage Services
+        </a>
+        <a href="/index.html" class="btn btn-light btn-sm me-2">
+          <i class="bi bi-house"></i> Home
+        </a>
+        <a href="/admin_login.html" class="btn btn-warning btn-sm" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="stat-card">
+          <div class="number" id="totalTransactions">0</div>
+          <div class="label">Total Transactions</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+          <div class="number" id="totalRevenue">0.00</div>
+          <div class="label">Total Revenue (LKR)</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+          <div class="number" id="totalMessages">0</div>
+          <div class="label">Contact Messages</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+          <div class="number" id="pendingMessages">0</div>
+          <div class="label">Pending Messages</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs for Transactions and Messages -->
+    <ul class="nav nav-tabs mb-3" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#transactions">
+          <i class="bi bi-credit-card"></i> Transactions
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#messages">
+          <i class="bi bi-envelope"></i> Contact Messages
+        </a>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Transactions Tab -->
+      <div class="tab-pane fade show active" id="transactions">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-list-ul"></i> All Payment Transactions</h5>
+          <div class="mt-2">
+              <input type="text" id="transactionSearch" class="form-control form-control-sm" placeholder="Search transactions...">
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="transactions-list">
+              <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages Tab -->
+      <div class="tab-pane fade" id="messages">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-chat-dots"></i> Contact Messages</h5>
+            <div class="mt-2">
+              <input type="text" id="messageSearch" class="form-control form-control-sm" placeholder="Search messages...">
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="messages-list">
+              <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const TRANSACTIONS_API = '/api/admin/transactions';
+    const MESSAGES_API = '/api/contact';
+    
+    // Check admin login
+    if(sessionStorage.getItem('adminLoggedIn') !== 'true') {
+      window.location.href = '/admin_login.html';
+    }
+
+    let allTransactions = [];
+    let allMessages = [];
+
+    async function loadTransactions() {
+      try {
+        const res = await fetch(TRANSACTIONS_API);
+        const transactions = await res.json();
+        allTransactions = transactions || [];
+        updateTransactionStats();
+        renderTransactions(allTransactions);
+      } catch(error) {
+        console.error('Error loading transactions:', error);
+        document.getElementById('transactions-list').innerHTML = 
+          '<div class="alert alert-danger">Error loading transactions</div>';
+      }
+    }
+
+    function updateTransactionStats() {
+      const total = allTransactions.length;
+      const revenue = allTransactions.reduce((sum, tx) => {
+        return sum + (parseFloat(tx.amount) || 0);
+      }, 0);
+      
+      document.getElementById('totalTransactions').textContent = total;
+      document.getElementById('totalRevenue').textContent = revenue.toFixed(2);
+    }
+
+    function renderTransactions(transactions) {
+      const container = document.getElementById('transactions-list');
+      
+      if(!transactions || transactions.length === 0) {
+        container.innerHTML = '<div class="alert alert-info">No transactions found</div>';
+        return;
+      }
+      
+      container.innerHTML = transactions.map(tx => {
+        const date = new Date(tx.createdAt).toLocaleString();
+        const statusClass = tx.status === 'completed' ? 'bg-success' : 
+                           tx.status === 'pending' ? 'bg-warning' : 'bg-secondary';
+        
+        return `
+          <div class="transaction-item">
+            <div class="row align-items-center">
+              <div class="col-md-3">
+                <strong class="text-primary">Transaction #${tx.id}</strong><br>
+                <small class="text-muted">${date}</small>
+              </div>
+              <div class="col-md-2">
+                <div><strong>Amount</strong></div>
+                <div class="text-success">${tx.amount} LKR</div>
+              </div>
+              <div class="col-md-2">
+                <div><strong>Quantity</strong></div>
+                <div>${tx.quantity} × ${tx.hours} hrs</div>
+              </div>
+              <div class="col-md-2">
+                <div><strong>Service Type</strong></div>
+                <div>${tx.serviceType === 'light' ? '<i class="bi bi-lightbulb"></i> Light' : 
+                      tx.serviceType === 'sound' ? '<i class="bi bi-music-note-beamed"></i> Sound' : 
+                      'N/A'}</div>
+              </div>
+              <div class="col-md-2">
+                <div><strong>Payment Type</strong></div>
+                <div>${tx.paymentType === 'card' ? '<i class="bi bi-credit-card"></i> Card' : 
+                      tx.paymentType === 'bank_transfer' ? '<i class="bi bi-bank"></i> Bank Transfer' : 
+                      'N/A'}</div>
+              </div>
+              <div class="col-md-1">
+                <span class="badge ${statusClass}">${tx.status}</span>
+              </div>
+              <div class="col-md-1 text-end">
+                ${tx.paymentSlipUrl ? `<button class="btn btn-sm btn-outline-primary view-slip-btn" data-transaction-id="${tx.id}">
+                  <i class="bi bi-image"></i>
+                </button>` : ''}
+              </div>
+            </div>
+            ${tx.bankDetails ? `<div class="mt-2"><small class="text-muted">${tx.bankDetails}</small></div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadMessages() {
+      try {
+        const res = await fetch(MESSAGES_API);
+        const messages = await res.json();
+        allMessages = messages || [];
+        updateMessageStats();
+        renderMessages(allMessages);
+      } catch(error) {
+        console.error('Error loading messages:', error);
+        document.getElementById('messages-list').innerHTML = 
+          '<div class="alert alert-danger">Error loading messages</div>';
+      }
+    }
+
+    function updateMessageStats() {
+      const total = allMessages.length;
+      const pending = allMessages.filter(m => m.status === 'new').length;
+      
+      document.getElementById('totalMessages').textContent = total;
+      document.getElementById('pendingMessages').textContent = pending;
+    }
+
+    function renderMessages(messages) {
+      const container = document.getElementById('messages-list');
+      
+      if(!messages || messages.length === 0) {
+        container.innerHTML = '<div class="alert alert-info">No messages found</div>';
+        return;
+      }
+      
+      container.innerHTML = messages.map(msg => {
+        const date = new Date(msg.createdAt).toLocaleString();
+        const statusClass = msg.status === 'new' ? 'bg-warning' : 
+                           msg.status === 'read' ? 'bg-info' : 'bg-secondary';
+        
+        return `
+          <div class="message-item">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <strong>${msg.name}</strong>
+                ${msg.email ? `<span class="text-muted">(${msg.email})</span>` : ''}
+              </div>
+              <span class="badge ${statusClass}">${msg.status}</span>
+            </div>
+            <div class="mb-2">
+              <strong><i class="bi bi-telephone"></i> ${msg.phone}</strong>
+            </div>
+            <div class="mb-2">
+              <strong>Subject:</strong> ${msg.subject}
+            </div>
+            <div class="mb-2">
+              <strong>Message:</strong><br>
+              <div class="p-2 bg-white rounded">${msg.message}</div>
+            </div>
+            <div class="text-end">
+              <small class="text-muted"><i class="bi bi-clock"></i> ${date}</small>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Search functionality
+    document.getElementById('transactionSearch').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const filtered = allTransactions.filter(tx => 
+        tx.id.toString().includes(searchTerm) ||
+        tx.amount.toString().includes(searchTerm) ||
+        (tx.paymentType && tx.paymentType.toLowerCase().includes(searchTerm))
+      );
+      renderTransactions(filtered);
+    });
+
+    document.getElementById('messageSearch').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const filtered = allMessages.filter(msg => 
+        msg.name.toLowerCase().includes(searchTerm) ||
+        (msg.email && msg.email.toLowerCase().includes(searchTerm)) ||
+        msg.phone.includes(searchTerm) ||
+        msg.subject.toLowerCase().includes(searchTerm) ||
+        msg.message.toLowerCase().includes(searchTerm)
+      );
+      renderMessages(filtered);
+    });
+
+    function viewPaymentSlip(slipUrl, transactionId) {
+      console.log('viewPaymentSlip called with:', { slipUrl: slipUrl?.substring(0, 50) + '...', transactionId });
+      
+      // Check if it's a base64 data URL or a regular URL
+      let imageSrc = slipUrl;
+      
+      // If it's not a data URL and not a full URL, it might be a relative path
+      if(!slipUrl || (!slipUrl.startsWith('data:') && !slipUrl.startsWith('http://') && !slipUrl.startsWith('https://'))) {
+        // For old entries with relative paths, show a message
+        alert('Payment slip image not available. This transaction was created before image storage was implemented.');
+        return;
+      }
+      
+      // Remove existing modal if any
+      const existingModal = document.getElementById('slipModal');
+      if(existingModal) {
+        existingModal.remove();
+      }
+      
+      // Create modal element
+      const modalDiv = document.createElement('div');
+      modalDiv.className = 'modal fade';
+      modalDiv.id = 'slipModal';
+      modalDiv.setAttribute('tabindex', '-1');
+      modalDiv.innerHTML = `
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Payment Slip - Transaction #${transactionId}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+              <img id="slipImage" alt="Payment Slip" class="img-fluid" style="max-height: 70vh; border-radius: 5px;">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <a id="slipDownload" download="payment-slip-${transactionId}.jpg" class="btn btn-primary">
+                <i class="bi bi-download"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Add modal to body
+      document.body.appendChild(modalDiv);
+      
+      // Set image source and download link safely
+      const img = modalDiv.querySelector('#slipImage');
+      const downloadLink = modalDiv.querySelector('#slipDownload');
+      img.src = imageSrc;
+      downloadLink.href = imageSrc;
+      
+      // Handle image error
+      img.onerror = function() {
+        this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Crect fill=\'%23f0f0f0\' width=\'400\' height=\'300\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\' font-family=\'Arial\' font-size=\'16\'%3EImage not available%3C/text%3E%3C/svg%3E';
+      };
+      
+      // Show modal
+      const modal = new bootstrap.Modal(modalDiv);
+      modal.show();
+      
+      // Clean up when modal is hidden
+      modalDiv.addEventListener('hidden.bs.modal', function() {
+        this.remove();
+      });
+    }
+
+    // Event delegation for payment slip buttons
+    document.addEventListener('click', function(e) {
+      if(e.target.closest('.view-slip-btn')) {
+        e.preventDefault();
+        e.stopPropagation();
+        const btn = e.target.closest('.view-slip-btn');
+        const transactionId = parseInt(btn.getAttribute('data-transaction-id'));
+        console.log('Payment slip button clicked, transaction ID:', transactionId);
+        
+        if(transactionId) {
+          // Find transaction in allTransactions array
+          const tx = allTransactions.find(t => t.id === transactionId);
+          console.log('Found transaction:', tx);
+          
+          if(tx && tx.paymentSlipUrl) {
+            console.log('Opening payment slip modal...');
+            viewPaymentSlip(tx.paymentSlipUrl, tx.id);
+          } else {
+            console.error('Transaction not found or no payment slip URL', { tx, hasSlipUrl: tx?.paymentSlipUrl });
+            alert('Payment slip not available for this transaction.');
+          }
+        } else {
+          console.error('Invalid transaction ID');
+        }
+      }
+    });
+
+    function logout() {
+      sessionStorage.removeItem('adminLoggedIn');
+    }
+
+    // Load data on page load
+    loadTransactions();
+    loadMessages();
+    
+    // Refresh data every 30 seconds
+    setInterval(() => {
+      loadTransactions();
+      loadMessages();
+    }, 30000);
+  </script>
+</body>
+</html>
+
+
